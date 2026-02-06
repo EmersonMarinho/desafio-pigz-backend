@@ -1,0 +1,5 @@
+context_controllers:
+    resource:
+        path: ../../src/Context/
+        namespace: App\Context
+    type: attribute

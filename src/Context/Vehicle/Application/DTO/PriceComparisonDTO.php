@@ -13,6 +13,7 @@ class PriceComparisonDTO
         public readonly string $status,
         public readonly ?string $fipeCode = null,
         public readonly ?string $referenceMonth = null,
+        public readonly string $source = 'local_database'
     ) {
     }
 
@@ -21,7 +22,8 @@ class PriceComparisonDTO
         float $vehiclePrice,
         ?float $fipePrice,
         ?string $fipeCode = null,
-        ?string $referenceMonth = null
+        ?string $referenceMonth = null,
+        string $source = 'local_database'
     ): self {
         if ($fipePrice === null) {
             return new self(
@@ -32,7 +34,8 @@ class PriceComparisonDTO
                 percentageDifference: null,
                 status: 'no_fipe_data',
                 fipeCode: $fipeCode,
-                referenceMonth: $referenceMonth
+                referenceMonth: $referenceMonth,
+                source: $source
             );
         }
 
@@ -53,7 +56,8 @@ class PriceComparisonDTO
             percentageDifference: round($percentageDifference, 2),
             status: $status,
             fipeCode: $fipeCode,
-            referenceMonth: $referenceMonth
+            referenceMonth: $referenceMonth,
+            source: $source
         );
     }
 
@@ -68,6 +72,7 @@ class PriceComparisonDTO
             'status' => $this->status,
             'fipeCode' => $this->fipeCode,
             'referenceMonth' => $this->referenceMonth,
+            'source' => $this->source,
         ];
     }
 }

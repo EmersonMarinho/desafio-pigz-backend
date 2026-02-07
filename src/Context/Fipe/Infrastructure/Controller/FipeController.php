@@ -8,7 +8,7 @@ use App\Context\Fipe\Application\UseCase\CreateFipePriceUseCase;
 use App\Context\Fipe\Application\UseCase\DeleteFipePriceUseCase;
 use App\Context\Fipe\Application\UseCase\GetFipePriceUseCase;
 use App\Context\Fipe\Application\UseCase\ListFipePricesUseCase;
-use App\Context\Fipe\Application\UseCase\SearchFipeByCodeUseCase;
+use App\Context\Fipe\Application\UseCase\LookupFipeCodeUseCase;
 use App\Context\Fipe\Application\UseCase\UpdateFipePriceUseCase;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -48,17 +48,24 @@ class FipeController extends AbstractController
         ]);
     }
 
-    #[Route('/search/{fipeCode}', name: 'search', methods: ['GET'])]
-    public function search(
+    #[Route('/lookup/{fipeCode}', name: 'lookup', methods: ['GET'])]
+    public function lookup(
         string $fipeCode,
-        SearchFipeByCodeUseCase $searchFipeByCodeUseCase
+        LookupFipeCodeUseCase $lookupFipeCodeUseCase
     ): JsonResponse {
-        $fipePrice = $searchFipeByCodeUseCase->execute($fipeCode, saveToCache: true);
+        $fipeData = $lookupFipeCodeUseCase->execute($fipeCode);
+
+        if (!$fipeData) {
+            return $this->json([
+                'success' => false,
+                'message' => 'FIPE code not found in external API'
+            ], Response::HTTP_NOT_FOUND);
+        }
 
         return $this->json([
             'success' => true,
-            'data' => $fipePrice->toArray(),
-            'source' => 'external_api'
+            'data' => $fipeData->toArray(),
+            'source' => 'brasil_api'
         ]);
     }
 

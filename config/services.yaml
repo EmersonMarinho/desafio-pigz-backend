@@ -45,6 +45,26 @@ services:
     App\Context\Fipe\Infrastructure\Repository\FipeRepository:
         tags: ["doctrine.repository_service"]
 
+    # FIPE API Client
+    App\Context\Fipe\Domain\Service\FipeApiClientInterface:
+        alias: App\Context\Fipe\Infrastructure\Service\BrasilApiFipeClient
+
+    App\Context\Fipe\Infrastructure\Service\BrasilApiFipeClient:
+        arguments:
+            $httpClient: "@http_client"
+            $logger: "@logger"
+
+    App\Context\Fipe\Application\UseCase\LookupFipeCodeUseCase:
+        arguments:
+            $fipeApiClient: '@App\Context\Fipe\Domain\Service\FipeApiClientInterface'
+            $logger: "@logger"
+
+    App\Context\Vehicle\Domain\Service\PriceComparisonService:
+        arguments:
+            $fipeRepository: '@App\Context\Fipe\Infrastructure\Repository\FipeRepository'
+            $fipeApiClient: '@App\Context\Fipe\Domain\Service\FipeApiClientInterface'
+            $logger: "@logger"
+
     App\Context\User\Infrastructure\Controller\UserController:
         tags: ["controller.service_arguments"]
 

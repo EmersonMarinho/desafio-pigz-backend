@@ -29,3 +29,6 @@ services:
     # Explicitly configure Repositories that are outside the default App\Repository namespace
     App\Context\User\Infrastructure\Repository\UserRepository:
         tags: ["doctrine.repository_service"]
+
+    App\Context\Vehicle\Infrastructure\Repository\VehicleRepository:
+        tags: ["doctrine.repository_service"]

@@ -12,6 +12,8 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+use App\Context\Vehicle\Infrastructure\Security\VehicleVoter;
+
 class VehicleController extends AbstractController
 {
     public function __construct(
@@ -21,7 +23,7 @@ class VehicleController extends AbstractController
     }
 
     #[Route('/api/vehicles', name: 'api_create_vehicle', methods: ['POST'])]
-    #[IsGranted('ROLE_ADMIN')]
+    #[IsGranted(VehicleVoter::CREATE)]
     public function create(#[MapRequestPayload] CreateVehicleDTO $dto): JsonResponse
     {
         $responseDTO = $this->createVehicleUseCase->execute($dto);

@@ -17,6 +17,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+use App\Context\Fipe\Infrastructure\Security\FipeVoter;
+
 #[Route('/api/fipe', name: 'api_fipe_')]
 class FipeController extends AbstractController
 {
@@ -105,7 +107,7 @@ class FipeController extends AbstractController
     }
 
     #[Route('', name: 'create', methods: ['POST'])]
-    #[IsGranted('ROLE_ADMIN')]
+    #[IsGranted(FipeVoter::MANAGE)]
     public function create(
         Request $request,
         CreateFipePriceUseCase $createFipePriceUseCase
@@ -135,7 +137,7 @@ class FipeController extends AbstractController
     }
 
     #[Route('/{id}', name: 'update', methods: ['PUT', 'PATCH'])]
-    #[IsGranted('ROLE_ADMIN')]
+    #[IsGranted(FipeVoter::MANAGE)]
     public function update(
         int $id,
         Request $request,
@@ -171,7 +173,7 @@ class FipeController extends AbstractController
     }
 
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
-    #[IsGranted('ROLE_ADMIN')]
+    #[IsGranted(FipeVoter::MANAGE)]
     public function delete(
         int $id,
         DeleteFipePriceUseCase $deleteFipePriceUseCase

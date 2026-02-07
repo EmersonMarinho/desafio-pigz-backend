@@ -6,12 +6,28 @@ use App\Context\User\Domain\Entity\User;
 
 class UserResponseDTO
 {
-    public readonly int $id;
-    public readonly string $email;
+    public function __construct(
+        public int $id,
+        public string $email,
+        public array $roles
+    ) {
+    }
 
-    public function __construct(User $user)
+    public static function fromEntity(User $user): self
     {
-        $this->id = $user->getId();
-        $this->email = $user->getEmail();
+        return new self(
+            id: $user->getId(),
+            email: $user->getEmail(),
+            roles: $user->getRoles()
+        );
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'email' => $this->email,
+            'roles' => $this->roles
+        ];
     }
 }

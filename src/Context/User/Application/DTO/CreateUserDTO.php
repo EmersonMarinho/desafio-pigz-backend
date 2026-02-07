@@ -6,17 +6,22 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class CreateUserDTO
 {
-    #[Assert\NotBlank]
-    #[Assert\Email]
-    public readonly string $email;
+    public function __construct(
+        #[Assert\NotBlank]
+        #[Assert\Email]
+        public string $email,
 
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 6)]
-    public readonly string $password;
+        #[Assert\NotBlank]
+        #[Assert\Length(min: 6)]
+        public string $password
+    ) {
+    }
 
-    public function __construct(string $email, string $password)
+    public static function fromArray(array $data): self
     {
-        $this->email = $email;
-        $this->password = $password;
+        return new self(
+            email: $data['email'] ?? '',
+            password: $data['password'] ?? ''
+        );
     }
 }

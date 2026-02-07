@@ -32,3 +32,6 @@ services:
 
     App\Context\Vehicle\Infrastructure\Repository\VehicleRepository:
         tags: ["doctrine.repository_service"]
+
+    App\Context\Fipe\Infrastructure\Repository\FipeRepository:
+        tags: ["doctrine.repository_service"]

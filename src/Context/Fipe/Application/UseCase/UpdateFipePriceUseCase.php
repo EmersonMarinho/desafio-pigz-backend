@@ -4,7 +4,7 @@ namespace App\Context\Fipe\Application\UseCase;
 
 use App\Context\Fipe\Application\DTO\UpdateFipePriceDTO;
 use App\Context\Fipe\Application\DTO\FipePriceResponseDTO;
-use App\Context\Fipe\Infrastructure\Repository\FipeRepository;
+use App\Context\Fipe\Domain\Repository\FipeRepositoryInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class UpdateFipePriceUseCase
 {
     public function __construct(
-        private readonly FipeRepository $fipeRepository,
+        private readonly FipeRepositoryInterface $fipeRepository,
         private readonly ValidatorInterface $validator
     ) {
     }
@@ -54,7 +54,7 @@ class UpdateFipePriceUseCase
 
         $fipePrice->setUpdatedAt(new \DateTime());
 
-        $this->fipeRepository->save($fipePrice);
+        $this->fipeRepository->save($fipePrice, true);
 
         return FipePriceResponseDTO::fromEntity($fipePrice);
     }

@@ -5,14 +5,14 @@ namespace App\Context\Fipe\Application\UseCase;
 use App\Context\Fipe\Application\DTO\CreateFipePriceDTO;
 use App\Context\Fipe\Application\DTO\FipePriceResponseDTO;
 use App\Context\Fipe\Domain\Entity\FipePrice;
-use App\Context\Fipe\Infrastructure\Repository\FipeRepository;
+use App\Context\Fipe\Domain\Repository\FipeRepositoryInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class CreateFipePriceUseCase
 {
     public function __construct(
-        private readonly FipeRepository $fipeRepository,
+        private readonly FipeRepositoryInterface $fipeRepository,
         private readonly ValidatorInterface $validator
     ) {
     }
@@ -42,7 +42,7 @@ class CreateFipePriceUseCase
         $fipePrice->setPrice((string) $dto->price);
         $fipePrice->setReferenceMonth($dto->referenceMonth);
 
-        $this->fipeRepository->save($fipePrice);
+        $this->fipeRepository->save($fipePrice, true);
 
         return FipePriceResponseDTO::fromEntity($fipePrice);
     }

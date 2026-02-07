@@ -5,12 +5,12 @@ namespace App\Context\Vehicle\Application\UseCase;
 use App\Context\Vehicle\Application\DTO\CreateVehicleDTO;
 use App\Context\Vehicle\Application\DTO\VehicleResponseDTO;
 use App\Context\Vehicle\Domain\Entity\Vehicle;
-use App\Context\Vehicle\Infrastructure\Repository\VehicleRepository;
+use App\Context\Vehicle\Domain\Repository\VehicleRepositoryInterface;
 
 class CreateVehicleUseCase
 {
     public function __construct(
-        private VehicleRepository $vehicleRepository
+        private VehicleRepositoryInterface $vehicleRepository
     ) {
     }
 

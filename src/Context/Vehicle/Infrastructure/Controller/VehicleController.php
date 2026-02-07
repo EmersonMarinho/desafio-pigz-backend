@@ -34,23 +34,11 @@ class VehicleController extends AbstractController
     #[Route('/api/vehicles/{id}/price-comparison', name: 'api_vehicle_price_comparison', methods: ['GET'])]
     public function priceComparison(int $id): JsonResponse
     {
-        try {
-            $comparison = $this->priceComparisonUseCase->execute($id);
+        $comparison = $this->priceComparisonUseCase->execute($id);
 
-            return $this->json([
-                'success' => true,
-                'data' => $comparison->toArray()
-            ]);
-        } catch (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e) {
-            return $this->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], Response::HTTP_NOT_FOUND);
-        } catch (\Exception $e) {
-            return $this->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return $this->json([
+            'success' => true,
+            'data' => $comparison->toArray()
+        ]);
     }
 }

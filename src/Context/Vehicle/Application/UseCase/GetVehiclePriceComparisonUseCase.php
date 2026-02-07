@@ -4,13 +4,13 @@ namespace App\Context\Vehicle\Application\UseCase;
 
 use App\Context\Vehicle\Application\DTO\PriceComparisonDTO;
 use App\Context\Vehicle\Domain\Service\PriceComparisonService;
-use App\Context\Vehicle\Infrastructure\Repository\VehicleRepository;
+use App\Context\Vehicle\Domain\Repository\VehicleRepositoryInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class GetVehiclePriceComparisonUseCase
 {
     public function __construct(
-        private readonly VehicleRepository $vehicleRepository,
+        private readonly VehicleRepositoryInterface $vehicleRepository,
         private readonly PriceComparisonService $priceComparisonService
     ) {
     }

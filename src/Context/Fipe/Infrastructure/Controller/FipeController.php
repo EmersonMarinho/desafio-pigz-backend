@@ -27,32 +27,25 @@ class FipeController extends AbstractController
         Request $request,
         ListFipePricesUseCase $listFipePricesUseCase
     ): JsonResponse {
-        try {
-            $brand = $request->query->get('brand');
-            $year = $request->query->get('year') ? (int) $request->query->get('year') : null;
-            $fuel = $request->query->get('fuel');
-            $minPrice = $request->query->get('minPrice') ? (float) $request->query->get('minPrice') : null;
-            $maxPrice = $request->query->get('maxPrice') ? (float) $request->query->get('maxPrice') : null;
+        $brand = $request->query->get('brand');
+        $year = $request->query->get('year') ? (int) $request->query->get('year') : null;
+        $fuel = $request->query->get('fuel');
+        $minPrice = $request->query->get('minPrice') ? (float) $request->query->get('minPrice') : null;
+        $maxPrice = $request->query->get('maxPrice') ? (float) $request->query->get('maxPrice') : null;
 
-            $fipePrices = $listFipePricesUseCase->execute(
-                brand: $brand,
-                year: $year,
-                fuel: $fuel,
-                minPrice: $minPrice,
-                maxPrice: $maxPrice
-            );
+        $fipePrices = $listFipePricesUseCase->execute(
+            brand: $brand,
+            year: $year,
+            fuel: $fuel,
+            minPrice: $minPrice,
+            maxPrice: $maxPrice
+        );
 
-            return $this->json([
-                'success' => true,
-                'data' => array_map(fn($dto) => $dto->toArray(), $fipePrices),
-                'count' => count($fipePrices)
-            ]);
-        } catch (\Exception $e) {
-            return $this->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return $this->json([
+            'success' => true,
+            'data' => array_map(fn($dto) => $dto->toArray(), $fipePrices),
+            'count' => count($fipePrices)
+        ]);
     }
 
     #[Route('/search/{fipeCode}', name: 'search', methods: ['GET'])]
@@ -60,25 +53,13 @@ class FipeController extends AbstractController
         string $fipeCode,
         SearchFipeByCodeUseCase $searchFipeByCodeUseCase
     ): JsonResponse {
-        try {
-            $fipePrice = $searchFipeByCodeUseCase->execute($fipeCode, saveToCache: true);
+        $fipePrice = $searchFipeByCodeUseCase->execute($fipeCode, saveToCache: true);
 
-            return $this->json([
-                'success' => true,
-                'data' => $fipePrice->toArray(),
-                'source' => 'external_api'
-            ]);
-        } catch (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e) {
-            return $this->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], Response::HTTP_NOT_FOUND);
-        } catch (\Exception $e) {
-            return $this->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return $this->json([
+            'success' => true,
+            'data' => $fipePrice->toArray(),
+            'source' => 'external_api'
+        ]);
     }
 
     #[Route('/{id}', name: 'get', methods: ['GET'])]
@@ -86,24 +67,12 @@ class FipeController extends AbstractController
         int $id,
         GetFipePriceUseCase $getFipePriceUseCase
     ): JsonResponse {
-        try {
-            $fipePrice = $getFipePriceUseCase->execute($id);
+        $fipePrice = $getFipePriceUseCase->execute($id);
 
-            return $this->json([
-                'success' => true,
-                'data' => $fipePrice->toArray()
-            ]);
-        } catch (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e) {
-            return $this->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], Response::HTTP_NOT_FOUND);
-        } catch (\Exception $e) {
-            return $this->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return $this->json([
+            'success' => true,
+            'data' => $fipePrice->toArray()
+        ]);
     }
 
     #[Route('', name: 'create', methods: ['POST'])]
@@ -112,28 +81,16 @@ class FipeController extends AbstractController
         Request $request,
         CreateFipePriceUseCase $createFipePriceUseCase
     ): JsonResponse {
-        try {
-            $data = json_decode($request->getContent(), true);
-            $dto = CreateFipePriceDTO::fromArray($data);
+        $data = json_decode($request->getContent(), true);
+        $dto = CreateFipePriceDTO::fromArray($data);
 
-            $fipePrice = $createFipePriceUseCase->execute($dto);
+        $fipePrice = $createFipePriceUseCase->execute($dto);
 
-            return $this->json([
-                'success' => true,
-                'message' => 'FIPE price created successfully',
-                'data' => $fipePrice->toArray()
-            ], Response::HTTP_CREATED);
-        } catch (\Symfony\Component\HttpKernel\Exception\BadRequestHttpException $e) {
-            return $this->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], Response::HTTP_BAD_REQUEST);
-        } catch (\Exception $e) {
-            return $this->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return $this->json([
+            'success' => true,
+            'message' => 'FIPE price created successfully',
+            'data' => $fipePrice->toArray()
+        ], Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'update', methods: ['PUT', 'PATCH'])]
@@ -143,33 +100,16 @@ class FipeController extends AbstractController
         Request $request,
         UpdateFipePriceUseCase $updateFipePriceUseCase
     ): JsonResponse {
-        try {
-            $data = json_decode($request->getContent(), true);
-            $dto = UpdateFipePriceDTO::fromArray($data);
+        $data = json_decode($request->getContent(), true);
+        $dto = UpdateFipePriceDTO::fromArray($data);
 
-            $fipePrice = $updateFipePriceUseCase->execute($id, $dto);
+        $fipePrice = $updateFipePriceUseCase->execute($id, $dto);
 
-            return $this->json([
-                'success' => true,
-                'message' => 'FIPE price updated successfully',
-                'data' => $fipePrice->toArray()
-            ]);
-        } catch (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e) {
-            return $this->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], Response::HTTP_NOT_FOUND);
-        } catch (\Symfony\Component\HttpKernel\Exception\BadRequestHttpException $e) {
-            return $this->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], Response::HTTP_BAD_REQUEST);
-        } catch (\Exception $e) {
-            return $this->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return $this->json([
+            'success' => true,
+            'message' => 'FIPE price updated successfully',
+            'data' => $fipePrice->toArray()
+        ]);
     }
 
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
@@ -178,23 +118,11 @@ class FipeController extends AbstractController
         int $id,
         DeleteFipePriceUseCase $deleteFipePriceUseCase
     ): JsonResponse {
-        try {
-            $deleteFipePriceUseCase->execute($id);
+        $deleteFipePriceUseCase->execute($id);
 
-            return $this->json([
-                'success' => true,
-                'message' => 'FIPE price deleted successfully'
-            ]);
-        } catch (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e) {
-            return $this->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], Response::HTTP_NOT_FOUND);
-        } catch (\Exception $e) {
-            return $this->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return $this->json([
+            'success' => true,
+            'message' => 'FIPE price deleted successfully'
+        ]);
     }
 }

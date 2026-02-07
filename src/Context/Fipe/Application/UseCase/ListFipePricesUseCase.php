@@ -3,12 +3,12 @@
 namespace App\Context\Fipe\Application\UseCase;
 
 use App\Context\Fipe\Application\DTO\FipePriceResponseDTO;
-use App\Context\Fipe\Infrastructure\Repository\FipeRepository;
+use App\Context\Fipe\Domain\Repository\FipeRepositoryInterface;
 
 class ListFipePricesUseCase
 {
     public function __construct(
-        private readonly FipeRepository $fipeRepository
+        private readonly FipeRepositoryInterface $fipeRepository
     ) {
     }
 

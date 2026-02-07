@@ -2,13 +2,13 @@
 
 namespace App\Context\Fipe\Application\UseCase;
 
-use App\Context\Fipe\Infrastructure\Repository\FipeRepository;
+use App\Context\Fipe\Domain\Repository\FipeRepositoryInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class DeleteFipePriceUseCase
 {
     public function __construct(
-        private readonly FipeRepository $fipeRepository
+        private readonly FipeRepositoryInterface $fipeRepository
     ) {
     }
 
@@ -19,6 +19,6 @@ class DeleteFipePriceUseCase
             throw new NotFoundHttpException('FIPE price not found');
         }
 
-        $this->fipeRepository->remove($fipePrice);
+        $this->fipeRepository->remove($fipePrice, true);
     }
 }

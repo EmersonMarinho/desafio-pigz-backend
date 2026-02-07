@@ -3,26 +3,36 @@
 namespace App\Context\Fipe\Infrastructure\Repository;
 
 use App\Context\Fipe\Domain\Entity\FipePrice;
+use App\Context\Fipe\Domain\Repository\FipeRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-class FipeRepository extends ServiceEntityRepository
+/**
+ * @extends ServiceEntityRepository<FipePrice>
+ */
+class FipeRepository extends ServiceEntityRepository implements FipeRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, FipePrice::class);
     }
 
-    public function save(FipePrice $fipePrice): void
+    public function save(FipePrice $fipePrice, bool $flush = false): void
     {
         $this->getEntityManager()->persist($fipePrice);
-        $this->getEntityManager()->flush();
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 
-    public function remove(FipePrice $fipePrice): void
+    public function remove(FipePrice $fipePrice, bool $flush = false): void
     {
         $this->getEntityManager()->remove($fipePrice);
-        $this->getEntityManager()->flush();
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 
     public function findByVehicleCode(string $vehicleCode): ?FipePrice

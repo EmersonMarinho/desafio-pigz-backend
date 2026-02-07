@@ -14,6 +14,10 @@ services:
         autowire: true # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
+    App\Shared\Infrastructure\EventListener\GlobalExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }
+
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
@@ -27,6 +31,11 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # Explicitly configure Repositories that are outside the default App\Repository namespace
+    # Interface bindings
+    App\Context\Vehicle\Domain\Repository\VehicleRepositoryInterface: '@App\Context\Vehicle\Infrastructure\Repository\VehicleRepository'
+    App\Context\Fipe\Domain\Repository\FipeRepositoryInterface: '@App\Context\Fipe\Infrastructure\Repository\FipeRepository'
+    App\Context\User\Domain\Repository\UserRepositoryInterface: '@App\Context\User\Infrastructure\Repository\UserRepository'
+
     App\Context\User\Infrastructure\Repository\UserRepository:
         tags: ["doctrine.repository_service"]
 
@@ -35,3 +44,4 @@ services:
 
     App\Context\Fipe\Infrastructure\Repository\FipeRepository:
         tags: ["doctrine.repository_service"]
+```

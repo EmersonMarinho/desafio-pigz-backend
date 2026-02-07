@@ -3,13 +3,14 @@
 namespace App\Context\Vehicle\Infrastructure\Repository;
 
 use App\Context\Vehicle\Domain\Entity\Vehicle;
+use App\Context\Vehicle\Domain\Repository\VehicleRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Vehicle>
  */
-class VehicleRepository extends ServiceEntityRepository
+class VehicleRepository extends ServiceEntityRepository implements VehicleRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {

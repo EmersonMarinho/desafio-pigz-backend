@@ -4,7 +4,7 @@ namespace App\Context\Fipe\Application\UseCase;
 
 use App\Context\Fipe\Application\DTO\FipePriceResponseDTO;
 use App\Context\Fipe\Domain\Entity\FipePrice;
-use App\Context\Fipe\Infrastructure\Repository\FipeRepository;
+use App\Context\Fipe\Domain\Repository\FipeRepositoryInterface;
 use App\Context\Fipe\Infrastructure\Service\FipeApiService;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -12,7 +12,7 @@ class SearchFipeByCodeUseCase
 {
     public function __construct(
         private readonly FipeApiService $fipeApiService,
-        private readonly FipeRepository $fipeRepository
+        private readonly FipeRepositoryInterface $fipeRepository
     ) {
     }
 
@@ -42,7 +42,7 @@ class SearchFipeByCodeUseCase
         $fipePrice->setReferenceMonth($apiData['MesReferencia'] ?? $this->fipeApiService->getReferenceMonth());
 
         if ($saveToCache) {
-            $this->fipeRepository->save($fipePrice);
+            $this->fipeRepository->save($fipePrice, true);
         }
 
         return FipePriceResponseDTO::fromEntity($fipePrice);

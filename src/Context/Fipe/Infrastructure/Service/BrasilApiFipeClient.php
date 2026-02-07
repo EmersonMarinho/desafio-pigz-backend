@@ -55,7 +55,9 @@ class BrasilApiFipeClient implements FipeApiClientInterface
 
             $data = $response->toArray();
 
-            return FipeVehicleDTO::fromBrasilApiResponse($data);
+            $item = isset($data[0]) ? $data[0] : $data;
+
+            return FipeVehicleDTO::fromBrasilApiResponse($item);
 
         } catch (TransportExceptionInterface $e) {
             $this->logger->error('Failed to connect to Brasil API', [
@@ -74,17 +76,11 @@ class BrasilApiFipeClient implements FipeApiClientInterface
 
     public function search(?string $brand = null, ?string $model = null, ?int $year = null): array
     {
-        // Brasil API doesn't have a direct search endpoint
-        // For now, we'll return empty array
-        // In a production app, you would implement pagination through available brands/models
         $this->logger->info('FIPE search called', [
             'brand' => $brand,
             'model' => $model,
             'year' => $year
         ]);
-
-        // TODO: Implement search using Brasil API's marcas/modelos endpoints
-        // This would require multiple API calls to build the search results
         return [];
     }
 }

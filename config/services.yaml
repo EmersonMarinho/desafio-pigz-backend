@@ -47,4 +47,24 @@ services:
 
     App\Context\User\Infrastructure\Controller\UserController:
         tags: ['controller.service_arguments']
+
+    App\Context\Vehicle\Application\UseCase\CreateVehicleUseCase:
+        arguments:
+            $vehicleRepository: '@App\Context\Vehicle\Domain\Repository\VehicleRepositoryInterface'
+
+    App\Context\Vehicle\Application\UseCase\ListVehiclesUseCase:
+        arguments:
+            $vehicleRepository: '@App\Context\Vehicle\Domain\Repository\VehicleRepositoryInterface'
+
+    App\Context\Vehicle\Application\UseCase\GetVehicleUseCase:
+        arguments:
+            $vehicleRepository: '@App\Context\Vehicle\Domain\Repository\VehicleRepositoryInterface'
+
+    App\Context\Vehicle\Application\UseCase\UpdateVehicleUseCase:
+        arguments:
+            $vehicleRepository: '@App\Context\Vehicle\Domain\Repository\VehicleRepositoryInterface'
+
+    App\Context\Vehicle\Application\UseCase\DeleteVehicleUseCase:
+        arguments:
+            $vehicleRepository: '@App\Context\Vehicle\Domain\Repository\VehicleRepositoryInterface'
 ```

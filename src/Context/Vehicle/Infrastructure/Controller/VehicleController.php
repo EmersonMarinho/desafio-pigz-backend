@@ -3,35 +3,121 @@
 namespace App\Context\Vehicle\Infrastructure\Controller;
 
 use App\Context\Vehicle\Application\DTO\CreateVehicleDTO;
+use App\Context\Vehicle\Application\DTO\UpdateVehicleDTO;
 use App\Context\Vehicle\Application\UseCase\CreateVehicleUseCase;
 use App\Context\Vehicle\Application\UseCase\GetVehiclePriceComparisonUseCase;
+use App\Context\Vehicle\Application\UseCase\ListVehiclesUseCase;
+use App\Context\Vehicle\Application\UseCase\GetVehicleUseCase;
+use App\Context\Vehicle\Application\UseCase\UpdateVehicleUseCase;
+use App\Context\Vehicle\Application\UseCase\DeleteVehicleUseCase;
+use App\Context\Vehicle\Infrastructure\Security\VehicleVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-use App\Context\Vehicle\Infrastructure\Security\VehicleVoter;
-
+#[Route('/api/vehicles', name: 'api_vehicles_')]
 class VehicleController extends AbstractController
 {
     public function __construct(
         private CreateVehicleUseCase $createVehicleUseCase,
-        private GetVehiclePriceComparisonUseCase $priceComparisonUseCase
+        private GetVehiclePriceComparisonUseCase $priceComparisonUseCase,
+        private ListVehiclesUseCase $listVehiclesUseCase,
+        private GetVehicleUseCase $getVehicleUseCase,
+        private UpdateVehicleUseCase $updateVehicleUseCase,
+        private DeleteVehicleUseCase $deleteVehicleUseCase
     ) {
     }
 
-    #[Route('/api/vehicles', name: 'api_create_vehicle', methods: ['POST'])]
+    #[Route('', name: 'api_create_vehicle', methods: ['POST'])]
     #[IsGranted(VehicleVoter::CREATE)]
-    public function create(#[MapRequestPayload] CreateVehicleDTO $dto): JsonResponse
-    {
-        $responseDTO = $this->createVehicleUseCase->execute($dto);
+    public function create(
+        Request $request
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+        $dto = CreateVehicleDTO::fromArray($data);
 
-        return $this->json($responseDTO, 201);
+        $vehicleResponse = $this->createVehicleUseCase->execute($dto);
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Vehicle created successfully',
+            'data' => $vehicleResponse->toArray()
+        ], Response::HTTP_CREATED);
     }
 
-    #[Route('/api/vehicles/{id}/price-comparison', name: 'api_vehicle_price_comparison', methods: ['GET'])]
+    #[Route('', name: 'api_list_vehicles', methods: ['GET'])]
+    public function list(
+        Request $request
+    ): JsonResponse {
+        $make = $request->query->get('make');
+        $model = $request->query->get('model');
+        $year = $request->query->get('year') ? (int) $request->query->get('year') : null;
+        $minPrice = $request->query->get('minPrice') ? (float) $request->query->get('minPrice') : null;
+        $maxPrice = $request->query->get('maxPrice') ? (float) $request->query->get('maxPrice') : null;
+
+        $vehicles = $this->listVehiclesUseCase->execute(
+            make: $make,
+            model: $model,
+            year: $year,
+            minPrice: $minPrice,
+            maxPrice: $maxPrice
+        );
+
+        return $this->json([
+            'success' => true,
+            'data' => array_map(fn($dto) => $dto->toArray(), $vehicles),
+            'count' => count($vehicles)
+        ]);
+    }
+
+    #[Route('/{id}', name: 'api_get_vehicle', methods: ['GET'])]
+    #[IsGranted(VehicleVoter::VIEW, 'id')]
+    public function get(
+        int $id
+    ): JsonResponse {
+        $vehicle = $this->getVehicleUseCase->execute($id);
+
+        return $this->json([
+            'success' => true,
+            'data' => $vehicle->toArray()
+        ]);
+    }
+
+    #[Route('/{id}', name: 'api_update_vehicle', methods: ['PUT', 'PATCH'])]
+    #[IsGranted(VehicleVoter::EDIT, 'id')]
+    public function update(
+        int $id,
+        Request $request
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+        $dto = UpdateVehicleDTO::fromArray($data);
+
+        $vehicle = $this->updateVehicleUseCase->execute($id, $dto);
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Vehicle updated successfully',
+            'data' => $vehicle->toArray()
+        ]);
+    }
+
+    #[Route('/{id}', name: 'api_delete_vehicle', methods: ['DELETE'])]
+    #[IsGranted(VehicleVoter::DELETE, 'id')]
+    public function delete(
+        int $id
+    ): JsonResponse {
+        $this->deleteVehicleUseCase->execute($id);
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Vehicle deleted successfully'
+        ]);
+    }
+
+    #[Route('/{id}/price-comparison', name: 'api_vehicle_price_comparison', methods: ['GET'])]
     public function priceComparison(int $id): JsonResponse
     {
         $comparison = $this->priceComparisonUseCase->execute($id);

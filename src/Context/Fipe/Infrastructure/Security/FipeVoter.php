@@ -23,7 +23,6 @@ class FipeVoter extends Voter
             return false;
         }
 
-        // Only admins can manage FIPE data
         if ($attribute === self::MANAGE) {
             return in_array('ROLE_ADMIN', $user->getRoles());
         }

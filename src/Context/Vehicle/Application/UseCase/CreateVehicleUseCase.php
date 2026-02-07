@@ -31,6 +31,6 @@ class CreateVehicleUseCase
 
         $this->vehicleRepository->add($vehicle, true);
 
-        return new VehicleResponseDTO($vehicle);
+        return VehicleResponseDTO::fromEntity($vehicle);
     }
 }

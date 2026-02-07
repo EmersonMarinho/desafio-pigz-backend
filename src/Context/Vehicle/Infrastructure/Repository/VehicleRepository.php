@@ -17,21 +17,58 @@ class VehicleRepository extends ServiceEntityRepository implements VehicleReposi
         parent::__construct($registry, Vehicle::class);
     }
 
-    public function add(Vehicle $entity, bool $flush = false): void
+    public function add(Vehicle $vehicle, bool $flush = false): void
     {
-        $this->getEntityManager()->persist($entity);
+        $this->getEntityManager()->persist($vehicle);
 
         if ($flush) {
             $this->getEntityManager()->flush();
         }
     }
 
-    public function remove(Vehicle $entity, bool $flush = false): void
+    public function remove(Vehicle $vehicle, bool $flush = false): void
     {
-        $this->getEntityManager()->remove($entity);
+        $this->getEntityManager()->remove($vehicle);
 
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function findWithFilters(
+        ?string $make = null,
+        ?string $model = null,
+        ?int $year = null,
+        ?float $minPrice = null,
+        ?float $maxPrice = null
+    ): array {
+        $qb = $this->createQueryBuilder('v');
+
+        if ($make) {
+            $qb->andWhere('v.make LIKE :make')
+                ->setParameter('make', '%' . $make . '%');
+        }
+
+        if ($model) {
+            $qb->andWhere('v.model LIKE :model')
+                ->setParameter('model', '%' . $model . '%');
+        }
+
+        if ($year) {
+            $qb->andWhere('v.yearModel = :year OR v.yearFab = :year')
+                ->setParameter('year', $year);
+        }
+
+        if ($minPrice) {
+            $qb->andWhere('v.price >= :minPrice')
+                ->setParameter('minPrice', $minPrice);
+        }
+
+        if ($maxPrice) {
+            $qb->andWhere('v.price <= :maxPrice')
+                ->setParameter('maxPrice', $maxPrice);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 }

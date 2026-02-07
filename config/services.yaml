@@ -46,7 +46,7 @@ services:
         tags: ["doctrine.repository_service"]
 
     App\Context\User\Infrastructure\Controller\UserController:
-        tags: ['controller.service_arguments']
+        tags: ["controller.service_arguments"]
 
     App\Context\Vehicle\Application\UseCase\CreateVehicleUseCase:
         arguments:
@@ -67,4 +67,3 @@ services:
     App\Context\Vehicle\Application\UseCase\DeleteVehicleUseCase:
         arguments:
             $vehicleRepository: '@App\Context\Vehicle\Domain\Repository\VehicleRepositoryInterface'
-```

@@ -35,6 +35,7 @@ class VehicleVoter extends Voter
             return false;
         }
 
+        // Admin tem acesso total
         if (in_array('ROLE_ADMIN', $user->getRoles())) {
             return true;
         }
@@ -50,11 +51,11 @@ class VehicleVoter extends Voter
 
     private function canEdit(Vehicle $vehicle, User $user): bool
     {
-        return false;
+        return $vehicle->getUser() !== null && $vehicle->getUser()->getId() === $user->getId();
     }
 
     private function canDelete(Vehicle $vehicle, User $user): bool
     {
-        return false;
+        return $vehicle->getUser() !== null && $vehicle->getUser()->getId() === $user->getId();
     }
 }

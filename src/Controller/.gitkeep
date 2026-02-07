@@ -1,0 +1,3 @@
+<?php
+// Placeholder file to satisfy routing configuration
+// Actual controllers are in Context/**/Infrastructure/Controller/

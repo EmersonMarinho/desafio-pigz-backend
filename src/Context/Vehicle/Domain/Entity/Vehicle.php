@@ -2,6 +2,7 @@
 
 namespace App\Context\Vehicle\Domain\Entity;
 
+use App\Context\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: 'App\Context\Vehicle\Infrastructure\Repository\VehicleRepository')]
@@ -44,6 +45,10 @@ class Vehicle
 
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $fuel = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
     public function getId(): ?int
     {
@@ -178,6 +183,18 @@ class Vehicle
     public function setFuel(?string $fuel): static
     {
         $this->fuel = $fuel;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }

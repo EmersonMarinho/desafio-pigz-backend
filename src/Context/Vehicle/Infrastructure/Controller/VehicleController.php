@@ -10,6 +10,7 @@ use App\Context\Vehicle\Application\UseCase\ListVehiclesUseCase;
 use App\Context\Vehicle\Application\UseCase\GetVehicleUseCase;
 use App\Context\Vehicle\Application\UseCase\UpdateVehicleUseCase;
 use App\Context\Vehicle\Application\UseCase\DeleteVehicleUseCase;
+use App\Context\Vehicle\Domain\Repository\VehicleRepositoryInterface;
 use App\Context\Vehicle\Infrastructure\Security\VehicleVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,7 +28,8 @@ class VehicleController extends AbstractController
         private ListVehiclesUseCase $listVehiclesUseCase,
         private GetVehicleUseCase $getVehicleUseCase,
         private UpdateVehicleUseCase $updateVehicleUseCase,
-        private DeleteVehicleUseCase $deleteVehicleUseCase
+        private DeleteVehicleUseCase $deleteVehicleUseCase,
+        private VehicleRepositoryInterface $vehicleRepository
     ) {
     }
 
@@ -74,41 +76,61 @@ class VehicleController extends AbstractController
     }
 
     #[Route('/{id}', name: 'api_get_vehicle', methods: ['GET'])]
-    #[IsGranted(VehicleVoter::VIEW, 'id')]
     public function get(
         int $id
     ): JsonResponse {
-        $vehicle = $this->getVehicleUseCase->execute($id);
+        $vehicle = $this->vehicleRepository->find($id);
+        if (!$vehicle) {
+            throw $this->createNotFoundException('Vehicle not found');
+        }
+
+        $this->denyAccessUnlessGranted(VehicleVoter::VIEW, $vehicle);
+
+        $vehicleDTO = $this->getVehicleUseCase->execute($id);
 
         return $this->json([
             'success' => true,
-            'data' => $vehicle->toArray()
+            'data' => $vehicleDTO->toArray()
         ]);
     }
 
     #[Route('/{id}', name: 'api_update_vehicle', methods: ['PUT', 'PATCH'])]
-    #[IsGranted(VehicleVoter::EDIT, 'id')]
     public function update(
         int $id,
         Request $request
     ): JsonResponse {
+        // Get the vehicle entity first for authorization check
+        $vehicle = $this->vehicleRepository->find($id);
+        if (!$vehicle) {
+            throw $this->createNotFoundException('Vehicle not found');
+        }
+
+        $this->denyAccessUnlessGranted(VehicleVoter::EDIT, $vehicle);
+
         $data = json_decode($request->getContent(), true);
         $dto = UpdateVehicleDTO::fromArray($data);
 
-        $vehicle = $this->updateVehicleUseCase->execute($id, $dto);
+        $vehicleDTO = $this->updateVehicleUseCase->execute($id, $dto);
 
         return $this->json([
             'success' => true,
             'message' => 'Vehicle updated successfully',
-            'data' => $vehicle->toArray()
+            'data' => $vehicleDTO->toArray()
         ]);
     }
 
     #[Route('/{id}', name: 'api_delete_vehicle', methods: ['DELETE'])]
-    #[IsGranted(VehicleVoter::DELETE, 'id')]
     public function delete(
         int $id
     ): JsonResponse {
+        // Get the vehicle entity first for authorization check
+        $vehicle = $this->vehicleRepository->find($id);
+        if (!$vehicle) {
+            throw $this->createNotFoundException('Vehicle not found');
+        }
+
+        $this->denyAccessUnlessGranted(VehicleVoter::DELETE, $vehicle);
+
         $this->deleteVehicleUseCase->execute($id);
 
         return $this->json([

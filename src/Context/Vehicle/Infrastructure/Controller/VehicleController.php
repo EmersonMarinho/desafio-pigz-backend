@@ -4,8 +4,10 @@ namespace App\Context\Vehicle\Infrastructure\Controller;
 
 use App\Context\Vehicle\Application\DTO\CreateVehicleDTO;
 use App\Context\Vehicle\Application\UseCase\CreateVehicleUseCase;
+use App\Context\Vehicle\Application\UseCase\GetVehiclePriceComparisonUseCase;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -13,14 +15,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class VehicleController extends AbstractController
 {
     public function __construct(
-        private CreateVehicleUseCase $createVehicleUseCase
+        private CreateVehicleUseCase $createVehicleUseCase,
+        private GetVehiclePriceComparisonUseCase $priceComparisonUseCase
     ) {
     }
 
-    /*
-     * Temporary security: Role Admin Only.
-     * In future steps we will implement Voters for granular access.
-     */
     #[Route('/api/vehicles', name: 'api_create_vehicle', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
     public function create(#[MapRequestPayload] CreateVehicleDTO $dto): JsonResponse
@@ -28,5 +27,28 @@ class VehicleController extends AbstractController
         $responseDTO = $this->createVehicleUseCase->execute($dto);
 
         return $this->json($responseDTO, 201);
+    }
+
+    #[Route('/api/vehicles/{id}/price-comparison', name: 'api_vehicle_price_comparison', methods: ['GET'])]
+    public function priceComparison(int $id): JsonResponse
+    {
+        try {
+            $comparison = $this->priceComparisonUseCase->execute($id);
+
+            return $this->json([
+                'success' => true,
+                'data' => $comparison->toArray()
+            ]);
+        } catch (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e) {
+            return $this->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], Response::HTTP_NOT_FOUND);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

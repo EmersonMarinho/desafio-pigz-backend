@@ -10,6 +10,7 @@ API RESTful developed for the Pigz technical challenge, featuring vehicle manage
 - **Docker & Docker Compose**
 - **JWT Authentication** (LexikJWTAuthenticationBundle)
 - **Brasil API** (Integration for FIPE data)
+- **PHPUnit** (Unit tests)
 
 ## 🛠️ Setup & Installation
 
@@ -37,6 +38,16 @@ The container entrypoint automatically runs:
 - **API:** http://localhost:8080/api
 
 **API Documentation (Swagger UI):** http://localhost:8080/api/doc
+
+### Run unit tests
+
+```bash
+docker-compose exec app composer test
+# or
+docker-compose exec app php vendor/bin/phpunit
+```
+
+**Coverage:** 21 unit tests (PriceComparisonDTO, VehicleVoter, FipeVoter, CreateVehicleDTO)
 
 ### Manual commands (optional)
 
@@ -105,7 +116,7 @@ Here is how each technical requirement was implemented and can be tested:
 
 ### 8. Custom Queries & Filters
 
-- **Endpoint**: `GET /api/vehicles?brand=Honda&minPrice=50000`
+- **Endpoint**: `GET /api/vehicles?make=Honda&minPrice=50000`
 - Implemented in `VehicleRepository` using Doctrine QueryBuilder for optimized filtering.
 
 ### 9. Market Research (Benchmark)
@@ -114,6 +125,12 @@ Here is how each technical requirement was implemented and can be tested:
     - **FIPE Code**: precise model identification.
     - **Price Comparison**: Visual indicators (below/above market price).
     - **Fallback API**: Ensures data availability even without manual admin entry.
+
+### 10. Code Quality & Unit Tests
+
+- **PHPUnit** tests covering DTOs, Voters (ACL logic), and business rules.
+- Run: `docker-compose exec app composer test`
+- **21 unit tests** in `tests/Unit/` (PriceComparisonDTO, VehicleVoter, FipeVoter, CreateVehicleDTO)
 
 ## 🧪 Testing with Insomnia (Step-by-Step)
 

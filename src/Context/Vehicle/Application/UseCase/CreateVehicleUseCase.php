@@ -8,17 +8,29 @@ use App\Context\Vehicle\Application\DTO\VehicleResponseDTO;
 use App\Context\Vehicle\Domain\Entity\Vehicle;
 use App\Context\Vehicle\Domain\Repository\VehicleRepositoryInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CreateVehicleUseCase
 {
     public function __construct(
-        private VehicleRepositoryInterface $vehicleRepository,
-        private Security $security
+        private readonly VehicleRepositoryInterface $vehicleRepository,
+        private readonly Security $security,
+        private readonly ValidatorInterface $validator
     ) {
     }
 
     public function execute(CreateVehicleDTO $dto): VehicleResponseDTO
     {
+        $errors = $this->validator->validate($dto);
+        if (count($errors) > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[] = $error->getMessage();
+            }
+            throw new BadRequestHttpException(implode(', ', $errorMessages));
+        }
+
         /** @var User $currentUser */
         $currentUser = $this->security->getUser();
 

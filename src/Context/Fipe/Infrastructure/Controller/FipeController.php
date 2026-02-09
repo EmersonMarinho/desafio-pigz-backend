@@ -10,6 +10,8 @@ use App\Context\Fipe\Application\UseCase\GetFipePriceUseCase;
 use App\Context\Fipe\Application\UseCase\ListFipePricesUseCase;
 use App\Context\Fipe\Application\UseCase\LookupFipeCodeUseCase;
 use App\Context\Fipe\Application\UseCase\UpdateFipePriceUseCase;
+use App\Context\Fipe\Infrastructure\Security\FipeVoter;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,12 +19,18 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-use App\Context\Fipe\Infrastructure\Security\FipeVoter;
-
 #[Route('/api/fipe', name: 'api_fipe_')]
+#[OA\Tag(name: 'FIPE')]
 class FipeController extends AbstractController
 {
     #[Route('', name: 'list', methods: ['GET'])]
+    #[OA\Parameter(name: 'brand', in: 'query', description: 'Filter by brand')]
+    #[OA\Parameter(name: 'year', in: 'query', description: 'Filter by year')]
+    #[OA\Parameter(name: 'fuel', in: 'query', description: 'Filter by fuel type')]
+    #[OA\Parameter(name: 'minPrice', in: 'query', description: 'Minimum price')]
+    #[OA\Parameter(name: 'maxPrice', in: 'query', description: 'Maximum price')]
+    #[OA\Response(response: 200, description: 'List of FIPE prices')]
+    #[OA\Security(name: 'Bearer')]
     public function list(
         Request $request,
         ListFipePricesUseCase $listFipePricesUseCase
@@ -49,6 +57,10 @@ class FipeController extends AbstractController
     }
 
     #[Route('/lookup/{fipeCode}', name: 'lookup', methods: ['GET'])]
+    #[OA\Parameter(name: 'fipeCode', in: 'path', description: 'FIPE code (e.g. 001461-3)', required: true)]
+    #[OA\Response(response: 200, description: 'Vehicle data from Brasil API')]
+    #[OA\Response(response: 404, description: 'FIPE code not found')]
+    #[OA\Security(name: 'Bearer')]
     public function lookup(
         string $fipeCode,
         LookupFipeCodeUseCase $lookupFipeCodeUseCase
@@ -70,6 +82,9 @@ class FipeController extends AbstractController
     }
 
     #[Route('/{id}', name: 'get', methods: ['GET'])]
+    #[OA\Parameter(name: 'id', in: 'path', description: 'FIPE price ID', required: true)]
+    #[OA\Response(response: 200, description: 'FIPE price details')]
+    #[OA\Security(name: 'Bearer')]
     public function get(
         int $id,
         GetFipePriceUseCase $getFipePriceUseCase
@@ -84,6 +99,22 @@ class FipeController extends AbstractController
 
     #[Route('', name: 'create', methods: ['POST'])]
     #[IsGranted(FipeVoter::MANAGE)]
+    #[OA\RequestBody(
+        content: new OA\JsonContent(
+            required: ['vehicleCode', 'brand', 'model', 'year', 'fuel', 'price', 'referenceMonth'],
+            properties: [
+                new OA\Property(property: 'vehicleCode', type: 'string', example: '001461-3'),
+                new OA\Property(property: 'brand', type: 'string', example: 'Fiat'),
+                new OA\Property(property: 'model', type: 'string', example: 'Mobi'),
+                new OA\Property(property: 'year', type: 'integer', example: 2022),
+                new OA\Property(property: 'fuel', type: 'string', enum: ['Gasolina', 'Etanol', 'Flex', 'Diesel', 'GNV', 'Híbrido', 'Elétrico']),
+                new OA\Property(property: 'price', type: 'number', example: 58900),
+                new OA\Property(property: 'referenceMonth', type: 'string', example: '02/2024'),
+            ]
+        )
+    )]
+    #[OA\Response(response: 201, description: 'FIPE price created successfully')]
+    #[OA\Security(name: 'Bearer')]
     public function create(
         Request $request,
         CreateFipePriceUseCase $createFipePriceUseCase
@@ -102,6 +133,21 @@ class FipeController extends AbstractController
 
     #[Route('/{id}', name: 'update', methods: ['PUT', 'PATCH'])]
     #[IsGranted(FipeVoter::MANAGE)]
+    #[OA\Parameter(name: 'id', in: 'path', description: 'FIPE price ID', required: true)]
+    #[OA\RequestBody(
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'brand', type: 'string'),
+                new OA\Property(property: 'model', type: 'string'),
+                new OA\Property(property: 'year', type: 'integer'),
+                new OA\Property(property: 'fuel', type: 'string'),
+                new OA\Property(property: 'price', type: 'number'),
+                new OA\Property(property: 'referenceMonth', type: 'string', example: '02/2024'),
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'FIPE price updated successfully')]
+    #[OA\Security(name: 'Bearer')]
     public function update(
         int $id,
         Request $request,
@@ -121,6 +167,9 @@ class FipeController extends AbstractController
 
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
     #[IsGranted(FipeVoter::MANAGE)]
+    #[OA\Parameter(name: 'id', in: 'path', description: 'FIPE price ID', required: true)]
+    #[OA\Response(response: 200, description: 'FIPE price deleted successfully')]
+    #[OA\Security(name: 'Bearer')]
     public function delete(
         int $id,
         DeleteFipePriceUseCase $deleteFipePriceUseCase

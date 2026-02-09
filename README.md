@@ -36,6 +36,8 @@ The container entrypoint automatically runs:
 - **Password:** `password123`
 - **API:** http://localhost:8080/api
 
+**API Documentation (Swagger UI):** http://localhost:8080/api/doc
+
 ### Manual commands (optional)
 
 If you need to run something manually:

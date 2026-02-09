@@ -12,6 +12,7 @@ use App\Context\Vehicle\Application\UseCase\UpdateVehicleUseCase;
 use App\Context\Vehicle\Application\UseCase\DeleteVehicleUseCase;
 use App\Context\Vehicle\Domain\Repository\VehicleRepositoryInterface;
 use App\Context\Vehicle\Infrastructure\Security\VehicleVoter;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,6 +21,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/api/vehicles', name: 'api_vehicles_')]
+#[OA\Tag(name: 'Vehicles')]
 class VehicleController extends AbstractController
 {
     public function __construct(
@@ -35,6 +37,25 @@ class VehicleController extends AbstractController
 
     #[Route('', name: 'api_create_vehicle', methods: ['POST'])]
     #[IsGranted(VehicleVoter::CREATE)]
+    #[OA\RequestBody(
+        content: new OA\JsonContent(
+            required: ['make', 'model', 'version', 'kms', 'price', 'yearModel', 'yearFab', 'color'],
+            properties: [
+                new OA\Property(property: 'make', type: 'string', example: 'Fiat'),
+                new OA\Property(property: 'model', type: 'string', example: 'Mobi'),
+                new OA\Property(property: 'version', type: 'string', example: 'Like 1.0'),
+                new OA\Property(property: 'kms', type: 'integer', example: 0),
+                new OA\Property(property: 'price', type: 'number', example: 50000),
+                new OA\Property(property: 'yearModel', type: 'integer', example: 2022),
+                new OA\Property(property: 'yearFab', type: 'integer', example: 2022),
+                new OA\Property(property: 'color', type: 'string', example: 'Branco'),
+                new OA\Property(property: 'fipeCode', type: 'string', example: '001461-3'),
+                new OA\Property(property: 'fuel', type: 'string', example: 'Flex'),
+            ]
+        )
+    )]
+    #[OA\Response(response: 201, description: 'Vehicle created successfully')]
+    #[OA\Security(name: 'Bearer')]
     public function create(
         Request $request
     ): JsonResponse {
@@ -51,6 +72,13 @@ class VehicleController extends AbstractController
     }
 
     #[Route('', name: 'api_list_vehicles', methods: ['GET'])]
+    #[OA\Parameter(name: 'make', in: 'query', description: 'Filter by brand')]
+    #[OA\Parameter(name: 'model', in: 'query', description: 'Filter by model')]
+    #[OA\Parameter(name: 'year', in: 'query', description: 'Filter by year')]
+    #[OA\Parameter(name: 'minPrice', in: 'query', description: 'Minimum price')]
+    #[OA\Parameter(name: 'maxPrice', in: 'query', description: 'Maximum price')]
+    #[OA\Response(response: 200, description: 'List of vehicles')]
+    #[OA\Security(name: 'Bearer')]
     public function list(
         Request $request
     ): JsonResponse {
@@ -76,6 +104,10 @@ class VehicleController extends AbstractController
     }
 
     #[Route('/{id}', name: 'api_get_vehicle', methods: ['GET'])]
+    #[OA\Parameter(name: 'id', in: 'path', description: 'Vehicle ID', required: true)]
+    #[OA\Response(response: 200, description: 'Vehicle details')]
+    #[OA\Response(response: 404, description: 'Vehicle not found')]
+    #[OA\Security(name: 'Bearer')]
     public function get(
         int $id
     ): JsonResponse {
@@ -95,6 +127,20 @@ class VehicleController extends AbstractController
     }
 
     #[Route('/{id}', name: 'api_update_vehicle', methods: ['PUT', 'PATCH'])]
+    #[OA\Parameter(name: 'id', in: 'path', description: 'Vehicle ID', required: true)]
+    #[OA\RequestBody(
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'make', type: 'string'),
+                new OA\Property(property: 'model', type: 'string'),
+                new OA\Property(property: 'price', type: 'number'),
+                new OA\Property(property: 'color', type: 'string'),
+                new OA\Property(property: 'kms', type: 'integer'),
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Vehicle updated successfully')]
+    #[OA\Security(name: 'Bearer')]
     public function update(
         int $id,
         Request $request
@@ -120,6 +166,9 @@ class VehicleController extends AbstractController
     }
 
     #[Route('/{id}', name: 'api_delete_vehicle', methods: ['DELETE'])]
+    #[OA\Parameter(name: 'id', in: 'path', description: 'Vehicle ID', required: true)]
+    #[OA\Response(response: 200, description: 'Vehicle deleted successfully')]
+    #[OA\Security(name: 'Bearer')]
     public function delete(
         int $id
     ): JsonResponse {
@@ -140,6 +189,9 @@ class VehicleController extends AbstractController
     }
 
     #[Route('/{id}/price-comparison', name: 'api_vehicle_price_comparison', methods: ['GET'])]
+    #[OA\Parameter(name: 'id', in: 'path', description: 'Vehicle ID', required: true)]
+    #[OA\Response(response: 200, description: 'Price comparison with FIPE table')]
+    #[OA\Security(name: 'Bearer')]
     public function priceComparison(int $id): JsonResponse
     {
         $comparison = $this->priceComparisonUseCase->execute($id);

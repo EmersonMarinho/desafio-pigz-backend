@@ -63,18 +63,18 @@ Here is how each technical requirement was implemented and can be tested:
 
 - **Vehicle CRUD**:
     - `GET /api/vehicles` (List)
-    - `POST /api/vehicles` (Create)
+    - `POST /api/vehicles` (Create - User creates their own vehicle)
     - `PUT /api/vehicles/{id}` (Update - Owner/Admin only)
     - `DELETE /api/vehicles/{id}` (Delete - Owner/Admin only)
-- **FIPE CRUD**:
-    - `POST /api/fipe` (Admin only)
+- **FIPE CRUD** (local cache to avoid external API calls):
+    - `POST /api/fipe` (Admin only) - Saves FIPE price to local cache
     - `PUT /api/fipe/{id}` (Admin only)
     - `DELETE /api/fipe/{id}` (Admin only)
 
 ### 2. Access Control (ACL)
 
 - **Implementation**: Uses Symfony Security Voters (`VehicleVoter`, `FipeVoter`).
-- **Test**: Try to delete a vehicle created by another user. You will receive `403 Access Denied`. Try to create a FIPE entry with a non-admin user. You will receive `403 Access Denied`.
+- **Test**: Try to edit/delete a vehicle created by another user → `403 Access Denied`. Try to create a FIPE entry with a non-admin user → `403 Access Denied`.
 
 ### 3. Vehicle Listing
 
@@ -84,7 +84,7 @@ Here is how each technical requirement was implemented and can be tested:
 ### 4. Price Comparison
 
 - **Endpoint**: `GET /api/vehicles/{id}/price-comparison`
-- **Logic**: Hybrid approach. Checks local `fipe_price` table first. If not found, fetches automatically from **Brasil API**.
+- **Logic**: Hybrid approach. Checks local `fipe_price` table (cache) first. If not found, fetches from **Brasil API**. Admin can pre-populate cache via `POST /api/fipe` to avoid external API calls.
 - **Response**: Includes `difference`, `percentageDifference`, and status (`above`, `below`, `equal`).
 
 ### 5. JWT Authentication

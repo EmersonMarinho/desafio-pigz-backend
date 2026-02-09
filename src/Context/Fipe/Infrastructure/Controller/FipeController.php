@@ -113,7 +113,7 @@ class FipeController extends AbstractController
             ]
         )
     )]
-    #[OA\Response(response: 201, description: 'FIPE price created successfully')]
+    #[OA\Response(response: 201, description: 'FIPE price saved to local cache (avoids external API calls on price comparison)')]
     #[OA\Security(name: 'Bearer')]
     public function create(
         Request $request,

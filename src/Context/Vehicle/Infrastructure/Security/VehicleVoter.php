@@ -35,13 +35,13 @@ class VehicleVoter extends Voter
             return false;
         }
 
-        // Admin tem acesso total
+        // Admin has full access (create, edit, delete)
         if (in_array('ROLE_ADMIN', $user->getRoles())) {
             return true;
         }
 
         return match ($attribute) {
-            self::CREATE => true,
+            self::CREATE => true, // User creates their own vehicle
             self::VIEW => true,
             self::EDIT => $this->canEdit($subject, $user),
             self::DELETE => $this->canDelete($subject, $user),

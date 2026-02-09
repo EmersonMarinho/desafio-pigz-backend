@@ -17,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -60,6 +61,9 @@ class VehicleController extends AbstractController
         Request $request
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
+        if (!\is_array($data)) {
+            throw new BadRequestHttpException('Invalid JSON');
+        }
         $dto = CreateVehicleDTO::fromArray($data);
 
         $vehicleResponse = $this->createVehicleUseCase->execute($dto);
@@ -154,6 +158,9 @@ class VehicleController extends AbstractController
         $this->denyAccessUnlessGranted(VehicleVoter::EDIT, $vehicle);
 
         $data = json_decode($request->getContent(), true);
+        if (!\is_array($data)) {
+            throw new BadRequestHttpException('Invalid JSON');
+        }
         $dto = UpdateVehicleDTO::fromArray($data);
 
         $vehicleDTO = $this->updateVehicleUseCase->execute($id, $dto);

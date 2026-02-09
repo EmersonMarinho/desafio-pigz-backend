@@ -41,6 +41,12 @@ class CreateUserCommand extends Command
         $password = $input->getArgument('password');
         $isAdmin = $input->getOption('admin');
 
+        $existingUser = $this->userRepository->findOneBy(['email' => $email]);
+        if ($existingUser !== null) {
+            $io->note(sprintf('Usuário já existe: %s', $email));
+            return Command::SUCCESS;
+        }
+
         $user = new User();
         $user->setEmail($email);
         $hashedPassword = $this->passwordHasher->hashPassword($user, $password);

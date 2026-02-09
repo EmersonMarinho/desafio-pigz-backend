@@ -13,43 +13,41 @@ API RESTful developed for the Pigz technical challenge, featuring vehicle manage
 
 ## 🛠️ Setup & Installation
 
-### 1. Requirements
+### Requirements
 
 - Docker and Docker Compose installed.
 
-### 2. Start the Application
+### Quick Start (for technical assessment)
 
-Run the following command to build and start the containers:
+**One command** – everything is configured automatically:
 
 ```bash
 docker-compose up -d --build
 ```
 
-### 3. Install Dependencies
+The container entrypoint automatically runs:
+- ✅ Dependency installation (`composer install`)
+- ✅ Database migrations
+- ✅ JWT key generation
+- ✅ Admin user creation for testing
+
+**Test credentials:**
+- **Email:** `admin@pigz.com`
+- **Password:** `password123`
+- **API:** http://localhost:8080/api
+
+### Manual commands (optional)
+
+If you need to run something manually:
 
 ```bash
-docker-compose exec app composer install
-```
-
-### 4. Setup Database
-
-Run migrations to create the database schema:
-
-```bash
+# Migrations
 docker-compose exec app php bin/console doctrine:migrations:migrate
-```
 
-### 5. Generate Keys for JWT
-
-```bash
+# Generate JWT keys
 docker-compose exec app php bin/console lexik:jwt:generate-keypair
-```
 
-### 6. Create Admin User
-
-To test administrative features, create an admin user via console:
-
-```bash
+# Create admin user
 docker-compose exec app php bin/console app:create-user admin@pigz.com password123 --admin
 ```
 
